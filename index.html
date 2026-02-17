@@ -3,42 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AIHub | NoppoStudio</title>
+    <title>AIHub | NoppoStudio Professional</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;700&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #2563eb; --bg-main: #fcfdfe; }
-        body { font-family: 'Plus Jakarta Sans', 'Noto Sans JP', sans-serif; background-color: var(--bg-main); color: #0f172a; overflow: hidden; }
+        :root { --primary: #2563eb; --bg-main: #ffffff; }
+        body { font-family: 'Plus Jakarta Sans', 'Noto Sans JP', sans-serif; background-color: var(--bg-main); color: #0f172a; }
         [v-cloak] { display: none; }
-        .bg-orb { position: fixed; width: 600px; height: 600px; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.15; pointer-events: none; }
-        .orb-1 { background: #3b82f6; top: -200px; right: -100px; }
-        .orb-2 { background: #8b5cf6; bottom: -200px; left: -100px; }
-        .font-logo { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.05em; }
-        .loader { width: 24px; height: 24px; border: 2px solid #e2e8f0; border-top: 2px solid var(--primary); border-radius: 50%; animation: spin 0.6s linear infinite; }
+        .font-logo { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.04em; }
+        
+        /* 洗練された背景：薄い方眼グリッド */
+        .bg-grid {
+            background-image: radial-gradient(#e2e8f0 1.2px, transparent 1.2px);
+            background-size: 32px 32px;
+            opacity: 0.5;
+        }
+
+        /* アニメーション：ふわっと浮き上がる */
+        .fade-in { animation: fadeInUp 0.8s ease-out forwards; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loader { width: 24px; height: 24px; border: 3px solid #f1f5f9; border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* 特徴カードのホバー */
+        .feature-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #f1f5f9; }
+        .feature-card:hover { border-color: #e2e8f0; background: #fafafa; transform: translateY(-2px); }
     </style>
 </head>
 <body class="select-none">
-    <div class="bg-orb orb-1"></div>
-    <div class="bg-orb orb-2"></div>
+    <div class="fixed inset-0 bg-grid z-0"></div>
 
-    <div id="app" v-cloak class="flex h-screen w-full relative items-center justify-center">
-        <div class="flex flex-col items-center p-8 text-center">
-            <div class="w-24 h-24 bg-blue-600 rounded-[2.8rem] flex items-center justify-center shadow-[0_20px_50px_rgba(37,99,235,0.3)] mb-12 animate-bounce">
-                <i data-lucide="zap" class="w-12 h-12 text-white fill-current"></i>
+    <div id="app" v-cloak class="relative z-10 min-h-screen flex flex-col items-center">
+        
+        <nav class="w-full max-w-7xl px-8 py-10 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
+                    <i data-lucide="zap" class="w-6 h-6 fill-current"></i>
+                </div>
+                <span class="font-black text-2xl font-logo text-slate-900 tracking-tighter">AIHub</span>
             </div>
-            <h1 class="text-5xl font-black mb-4 font-logo text-slate-900">AIHub</h1>
-            <p class="text-slate-400 font-medium mb-12 max-w-xs leading-relaxed">NoppoStudio クオリティの<br>次世代AI開発ストレージ</p>
-            
-            <div v-if="authLoading" class="flex flex-col items-center gap-4">
-                <div class="loader"></div>
-                <p class="text-xs font-bold text-slate-400">認証情報を確認中...</p>
+            <div class="hidden md:flex gap-8 text-sm font-bold text-slate-400">
+                <span>Enterprise</span>
+                <span>Security</span>
+                <span>Docs</span>
             </div>
-            <button v-else @click="handleLogin" class="w-full max-w-xs py-5 bg-slate-950 text-white rounded-[1.8rem] font-bold shadow-2xl flex items-center justify-center gap-3 text-lg transition-transform active:scale-95">
-                <i data-lucide="user" class="w-6 h-6"></i> NoppoAuth でログイン
-            </button>
-        </div>
+        </nav>
+
+        <main class="flex-1 flex flex-col items-center justify-center px-6 py-20 text-center max-w-4xl mx-auto">
+            <div class="fade-in" style="animation-delay: 0.1s">
+                <span class="inline-block px-4 py-1.5 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-8">
+                    Next-Gen AI Development
+                </span>
+                <h1 class="text-5xl md:text-7xl font-black text-slate-900 leading-[1.1] tracking-tighter mb-8">
+                    AI開発を、<br><span class="text-blue-600">もっと直感的に。</span>
+                </h1>
+                <p class="text-slate-500 font-medium text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-16">
+                    NoppoDriveのエコシステムを基盤とした、<br class="hidden md:block">
+                    環境構築不要のプロフェッショナル向け統合開発環境。
+                </p>
+            </div>
+
+            <div class="fade-in w-full max-w-sm" style="animation-delay: 0.3s">
+                <div v-if="authLoading" class="flex flex-col items-center gap-4 py-6">
+                    <div class="loader"></div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Initialising Session...</p>
+                </div>
+                <div v-else class="flex flex-col items-center gap-6">
+                    <button @click="handleLogin" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-bold flex items-center justify-center gap-3 text-sm tracking-wide shadow-2xl hover:bg-blue-600 hover:-translate-y-1 transition-all active:scale-95">
+                        <i data-lucide="user-check" class="w-5 h-5"></i> NoppoAuth でログイン
+                    </button>
+                    <p class="text-[9px] font-bold text-slate-300 uppercase tracking-[0.4em]">Powered by NoppoStudio</p>
+                </div>
+            </div>
+
+            <div class="fade-in mt-32 grid grid-cols-1 md:grid-cols-3 gap-6 w-full text-left" style="animation-delay: 0.5s">
+                <div class="feature-card p-8 rounded-[2rem] bg-white/50 backdrop-blur-sm">
+                    <i data-lucide="cpu" class="w-6 h-6 text-blue-600 mb-4"></i>
+                    <h3 class="font-black text-sm mb-2 uppercase tracking-tighter">Zero Config</h3>
+                    <p class="text-slate-400 text-xs font-medium leading-relaxed">ブラウザ完結のPythonエンジン。立ち上げた瞬間に開発を開始。</p>
+                </div>
+                <div class="feature-card p-8 rounded-[2rem] bg-white/50 backdrop-blur-sm">
+                    <i data-lucide="activity" class="w-6 h-6 text-blue-600 mb-4"></i>
+                    <h3 class="font-black text-sm mb-2 uppercase tracking-tighter">Live Insight</h3>
+                    <p class="text-slate-400 text-xs font-medium leading-relaxed">学習中のロス率をリアルタイムで視覚化。モデルの挙動を即座に把握。</p>
+                </div>
+                <div class="feature-card p-8 rounded-[2rem] bg-white/50 backdrop-blur-sm">
+                    <i data-lucide="hard-drive" class="w-6 h-6 text-blue-600 mb-4"></i>
+                    <h3 class="font-black text-sm mb-2 uppercase tracking-tighter">Drive Native</h3>
+                    <p class="text-slate-400 text-xs font-medium leading-relaxed">NoppoDriveと完全同期。資産をそのままAIの糧に。</p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="w-full py-12 border-t border-slate-100 mt-20 text-center">
+            <p class="text-[10px] font-bold text-slate-300 uppercase tracking-[0.3em]">© 2026 NOPPOSTUDIO. ALL RIGHTS RESERVED.</p>
+        </footer>
     </div>
 
     <script type="module">
@@ -53,7 +117,6 @@
                 onMounted(async () => {
                     const user = await checkAuth();
                     if (user) {
-                        // ログイン済みならプロジェクト一覧へ飛ばす
                         location.href = "projects.html";
                     } else {
                         authLoading.value = false;
