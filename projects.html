@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>プロジェクト | AIHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #2563eb; --bg-main: #fcfdfe; --sidebar-width: 280px; }
+        body { font-family: 'Plus Jakarta Sans', 'Noto Sans JP', sans-serif; background-color: var(--bg-main); color: #0f172a; overflow: hidden; }
+        [v-cloak] { display: none; }
+        .bg-orb { position: fixed; width: 600px; height: 600px; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.12; pointer-events: none; }
+        .orb-1 { background: #3b82f6; top: -200px; right: -100px; }
+        .orb-2 { background: #8b5cf6; bottom: -200px; left: -100px; }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .item-card { transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1); background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(226, 232, 240, 0.6); }
+        .item-card:hover { transform: translateY(-5px); background: #ffffff; border-color: var(--primary); box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05); }
+        .font-logo { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.05em; }
+        .loader { width: 24px; height: 24px; border: 2px solid #e2e8f0; border-top: 2px solid var(--primary); border-radius: 50%; animation: spin 0.6s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .nav-item { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; border-radius: 1.1rem; font-weight: 700; font-size: 14px; transition: all 0.2s; color: #94a3b8; }
+        .nav-item.active { background: #0f172a; color: white; }
+        .nav-item:not(.active):hover { background: #f1f5f9; color: #0f172a; }
+    </style>
+</head>
+<body class="select-none">
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <div id="app" v-cloak class="flex h-screen w-full relative">
+        <template v-if="user">
+            <aside class="w-[var(--sidebar-width)] h-full glass border-r border-slate-200/50 flex flex-col z-20">
+                <div class="p-8">
+                    <div class="flex items-center gap-3 mb-10">
+                        <div class="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
+                            <i data-lucide="zap" class="w-5 h-5 fill-current"></i>
+                        </div>
+                        <span class="font-black text-2xl font-logo tracking-tight">AIHub</span>
+                    </div>
+
+                    <button @click="showModal = true" class="w-full bg-blue-600 text-white py-4 rounded-[1.2rem] font-bold flex items-center justify-center gap-2 shadow-xl hover:brightness-110 transition-all mb-10 active:scale-95">
+                        <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                        新規プロジェクト
+                    </button>
+
+                    <nav class="space-y-2">
+                        <button class="nav-item active w-full"><i data-lucide="grid" class="w-5 h-5"></i> ダッシュボード</button>
+                        <button class="nav-item w-full"><i data-lucide="settings" class="w-5 h-5"></i> 設定</button>
+                    </nav>
+                </div>
+
+                <div class="mt-auto p-8">
+                    <div class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-[1.4rem] shadow-sm">
+                        <img :src="user.avatar" class="w-11 h-11 rounded-[1rem] bg-slate-50 object-cover border border-slate-100">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-[13px] font-black text-slate-900 truncate">{{ user.userId }}</p>
+                            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Authorized</p>
+                        </div>
+                        <button @click="handleLogout" class="p-2 text-slate-300 hover:text-rose-500 transition-colors">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+                <header class="h-32 px-12 flex flex-col justify-center shrink-0">
+                    <h2 class="text-4xl font-black text-slate-900 tracking-tighter">マイプロジェクト</h2>
+                    <p class="text-slate-400 font-bold text-[10px] uppercase tracking-[0.2em] mt-1">AIHub フォルダ内のプロジェクトを管理</p>
+                </header>
+
+                <div class="flex-1 overflow-y-auto px-12 pb-12">
+                    <div v-if="loading" class="flex flex-col items-center justify-center py-48 gap-5">
+                        <div class="loader"></div>
+                        <p class="text-[10px] font-black text-slate-400 tracking-widest uppercase">Drive Syncing...</p>
+                    </div>
+
+                    <div v-else-if="items.length === 0" class="flex flex-col items-center justify-center py-40">
+                        <div class="w-24 h-24 bg-white rounded-[2.5rem] shadow-xl flex items-center justify-center mb-6 border border-slate-100">
+                            <i data-lucide="folder-plus" class="w-10 h-10 text-slate-200"></i>
+                        </div>
+                        <p class="font-black text-slate-300 text-lg">まだプロジェクトがありません</p>
+                    </div>
+
+                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <div v-for="item in items" :key="item.id" @click="openProject(item.id)" class="item-card rounded-[2.2rem] p-8 cursor-pointer group">
+                            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-[1.4rem] flex items-center justify-center mb-6 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                                <i data-lucide="folder" class="w-8 h-8"></i>
+                            </div>
+                            <h3 class="font-black text-lg text-slate-800 truncate mb-1">{{ item.name }}</h3>
+                            <p class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">AIHub Project</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6">
+                <div class="absolute inset-0 bg-slate-900/10 backdrop-blur-md" @click="showModal = false"></div>
+                <div class="relative w-full max-w-sm bg-white rounded-[2.8rem] p-12 shadow-2xl border border-white">
+                    <h3 class="text-2xl font-black mb-8 text-center text-slate-900">新規プロジェクト</h3>
+                    <input v-model="newName" @keyup.enter="createProject" type="text" class="w-full p-5 bg-slate-50 border-none rounded-[1.4rem] mb-10 outline-none focus:ring-4 ring-blue-500/10 font-bold text-lg" placeholder="プロジェクト名..." autofocus>
+                    <div class="flex gap-4">
+                        <button @click="showModal = false" class="flex-1 font-bold text-slate-400">キャンセル</button>
+                        <button @click="createProject" class="flex-1 py-5 bg-blue-600 text-white font-bold rounded-[1.4rem] shadow-lg shadow-blue-100 active:scale-95 transition-transform">作成</button>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    <script type="module">
+        import { app, checkAuth, logout } from './js/auth.js';
+        import { getFirestore, collection, onSnapshot, query, where, addDoc, serverTimestamp, getDocs, limit } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { createApp, ref, onMounted } from "https://unpkg.com/vue@3/dist/vue.esm-browser.prod.js";
+
+        const db = getFirestore(app);
+        const APP_ID = 'noppo-drive-ultimate';
+        const AIHUB_FOLDER_NAME = 'AIHub';
+
+        createApp({
+            setup() {
+                const user = ref(null);
+                const items = ref([]);
+                const loading = ref(true);
+                const showModal = ref(false);
+                const newName = ref('');
+                const aihubFolderId = ref(null);
+
+                const handleLogout = () => logout();
+                const openProject = (id) => location.href = `editor.html?id=${id}`;
+
+                // AIHubフォルダのIDを探す、無ければ作る
+                async function ensureAIHubFolder() {
+                    const q = query(
+                        collection(db, 'artifacts', APP_ID, 'public', 'data', 'items'), 
+                        where('name', '==', AIHUB_FOLDER_NAME),
+                        where('type', '==', 'folder'),
+                        limit(1)
+                    );
+                    const snap = await getDocs(q);
+                    if (!snap.empty) {
+                        return snap.docs[0].id;
+                    } else {
+                        const docRef = await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'items'), {
+                            name: AIHUB_FOLDER_NAME,
+                            type: 'folder',
+                            ownerId: user.value.userId,
+                            createdAt: serverTimestamp(),
+                            storageProvider: 'cloudinary'
+                        });
+                        return docRef.id;
+                    }
+                }
+
+                async function createProject() {
+                    if (!newName.value || !aihubFolderId.value) return;
+                    try {
+                        await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'items'), {
+                            name: newName.value,
+                            type: 'directory', // AIHub内ではプロジェクトをdirectoryとして扱う
+                            parentId: aihubFolderId.value, // AIHubフォルダの中に入れる
+                            ownerId: user.value.userId,
+                            createdAt: serverTimestamp(),
+                            storageProvider: 'cloudinary'
+                        });
+                        newName.value = ''; showModal.value = false;
+                    } catch (e) { console.error(e); }
+                }
+
+                onMounted(async () => {
+                    user.value = await checkAuth();
+                    if (!user.value) { location.href = "index.html"; return; }
+                    
+                    // まずAIHubフォルダを特定する
+                    aihubFolderId.value = await ensureAIHubFolder();
+
+                    // AIHubフォルダを親に持つプロジェクトだけを取得
+                    const q = query(
+                        collection(db, 'artifacts', APP_ID, 'public', 'data', 'items'), 
+                        where('parentId', '==', aihubFolderId.value)
+                    );
+                    
+                    onSnapshot(q, (snap) => {
+                        items.value = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        loading.value = false;
+                        setTimeout(() => lucide.createIcons(), 10);
+                    });
+                });
+
+                return { user, items, loading, showModal, newName, createProject, handleLogout, openProject };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

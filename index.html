@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AIHub | NoppoStudio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #2563eb; --bg-main: #fcfdfe; }
+        body { font-family: 'Plus Jakarta Sans', 'Noto Sans JP', sans-serif; background-color: var(--bg-main); color: #0f172a; overflow: hidden; }
+        [v-cloak] { display: none; }
+        .bg-orb { position: fixed; width: 600px; height: 600px; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.15; pointer-events: none; }
+        .orb-1 { background: #3b82f6; top: -200px; right: -100px; }
+        .orb-2 { background: #8b5cf6; bottom: -200px; left: -100px; }
+        .font-logo { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.05em; }
+        .loader { width: 24px; height: 24px; border: 2px solid #e2e8f0; border-top: 2px solid var(--primary); border-radius: 50%; animation: spin 0.6s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="select-none">
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <div id="app" v-cloak class="flex h-screen w-full relative items-center justify-center">
+        <div class="flex flex-col items-center p-8 text-center">
+            <div class="w-24 h-24 bg-blue-600 rounded-[2.8rem] flex items-center justify-center shadow-[0_20px_50px_rgba(37,99,235,0.3)] mb-12 animate-bounce">
+                <i data-lucide="zap" class="w-12 h-12 text-white fill-current"></i>
+            </div>
+            <h1 class="text-5xl font-black mb-4 font-logo text-slate-900">AIHub</h1>
+            <p class="text-slate-400 font-medium mb-12 max-w-xs leading-relaxed">NoppoStudio クオリティの<br>次世代AI開発ストレージ</p>
+            
+            <div v-if="authLoading" class="flex flex-col items-center gap-4">
+                <div class="loader"></div>
+                <p class="text-xs font-bold text-slate-400">認証情報を確認中...</p>
+            </div>
+            <button v-else @click="handleLogin" class="w-full max-w-xs py-5 bg-slate-950 text-white rounded-[1.8rem] font-bold shadow-2xl flex items-center justify-center gap-3 text-lg transition-transform active:scale-95">
+                <i data-lucide="user" class="w-6 h-6"></i> NoppoAuth でログイン
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { checkAuth, login } from './js/auth.js';
+        import { createApp, ref, onMounted } from "https://unpkg.com/vue@3/dist/vue.esm-browser.prod.js";
+
+        createApp({
+            setup() {
+                const authLoading = ref(true);
+                const handleLogin = () => login();
+
+                onMounted(async () => {
+                    const user = await checkAuth();
+                    if (user) {
+                        // ログイン済みならプロジェクト一覧へ飛ばす
+                        location.href = "projects.html";
+                    } else {
+                        authLoading.value = false;
+                        lucide.createIcons();
+                    }
+                });
+
+                return { authLoading, handleLogin };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
