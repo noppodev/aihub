@@ -159,7 +159,7 @@
                     try {
                         await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'items'), {
                             name: newName.value,
-                            type: 'directory', // AIHub内ではプロジェクトをdirectoryとして扱う
+                            type: 'folder', // AIHub内ではプロジェクトをdirectoryとして扱う
                             parentId: aihubFolderId.value, // AIHubフォルダの中に入れる
                             ownerId: user.value.userId,
                             createdAt: serverTimestamp(),
@@ -179,7 +179,8 @@
                     // AIHubフォルダを親に持つプロジェクトだけを取得
                     const q = query(
                         collection(db, 'artifacts', APP_ID, 'public', 'data', 'items'), 
-                        where('parentId', '==', aihubFolderId.value)
+                        where('parentId', '==', aihubFolderId.value),
+                        where('type', '==', 'folder')
                     );
                     
                     onSnapshot(q, (snap) => {
