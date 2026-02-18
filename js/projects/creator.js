@@ -35,7 +35,7 @@ if (createBtn) {
         try {
             await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'items'), {
                 name: name,
-                type: 'directory',
+                type: 'folder',
                 ownerId: user.userId,
                 createdAt: serverTimestamp(),
                 parentId: 'root' // AIHubのルート階層
